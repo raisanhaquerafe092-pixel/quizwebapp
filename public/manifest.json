@@ -1,0 +1,16 @@
+{
+  "name": "Quiz Web App",
+  "short_name": "QuizApp",
+  "description": "A quiz web application with offline support.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    { "src": "/next.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
+
+
