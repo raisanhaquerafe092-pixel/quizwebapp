@@ -10,6 +10,7 @@ interface Question {
   option2: string;
   option3: string;
   option4: string;
+  explanation: string;
 }
 
 async function getQuestions(): Promise<Question[]> {
@@ -92,3 +93,5 @@ export default async function ShortQuestion() {
 
       );
 }
+
+
