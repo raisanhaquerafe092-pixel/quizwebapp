@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { prompt, model: modelFromClient, task } = await req.json();
+    const { prompt, model: modelFromClient, task, mode } = await req.json();
     const geminiKey = process.env.GEMINI_API_KEY || (process.env.gemini_api_key as string);
     const apiToken = process.env.HF_TOKEN || process.env.HUGGINGFACE_API_TOKEN;
     if (!apiToken) {
@@ -18,6 +18,36 @@ export async function POST(req: Request) {
 
     // If Gemini key exists, use Gemini API first
     if (geminiKey) {
+      if (mode === 'generate_questions') {
+        const schemaHint = `তুমি নিচের JSON স্কিমা অনুসারে প্রশ্ন তৈরি করবে। বাংলায় প্রশ্ন লেখো। শুধুমাত্র বৈধ JSON রেসপন্স দেবে, অন্য কিছু নয়।
+স্কিমা:
+{
+  "mcq": [{"question": string, "options": [string, string, string, string], "correct_index": number}],
+  "short": [{"question": string, "answer": string}],
+  "long": [{"question": string, "answer": string}]
+}
+বিষয়বস্তু: ${prompt}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`;
+        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: schemaHint }] }] }) });
+        if (!r.ok) return NextResponse.json({ error: `Gemini error: ${r.status} ${await r.text()}` }, { status: 502 });
+        const j = await r.json();
+        const raw = j?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        // Attempt to extract JSON from the response (supports fenced code blocks)
+        let jsonText = raw;
+        const fence = raw.match(/```(?:json)?\n([\s\S]*?)```/i);
+        if (fence && fence[1]) jsonText = fence[1];
+        // Fallback: greedy braces
+        const brace = jsonText.match(/\{[\s\S]*\}/);
+        if (brace) jsonText = brace[0];
+        let parsed: any = {};
+        try {
+          parsed = JSON.parse(jsonText);
+        } catch {
+          // last resort: return empty skeleton
+          parsed = { mcq: [], short: [], long: [] };
+        }
+        return NextResponse.json({ questions: parsed, model: 'gemini-1.5-flash' });
+      }
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`;
       const gRes = await fetch(geminiUrl, {
         method: "POST",

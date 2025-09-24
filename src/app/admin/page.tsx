@@ -75,6 +75,7 @@ export default function page() {
   // Simple forms
   const [mcqForm, setMcqForm] = useState<Mcq>({ class_name: 'nine', subject: 'bangla', question: '', option1: '', option2: '', option3: '', option4: '', correct_option: 1 });
   const [qaForm, setQaForm] = useState<Qa>({ class_name: 'nine', subject: 'bangla', question: '', answer: '' });
+  const [genTopic, setGenTopic] = useState('');
 
   const bg: React.CSSProperties = { backgroundColor: 'rgb(18,18,22)', color: 'white' };
 
@@ -129,6 +130,48 @@ export default function page() {
           {/* Create */}
           <div className="rounded-xl border border-white/15 p-3 md:p-4">
             <h2 className="text-xl font-semibold mb-3">Create New</h2>
+            <div className="grid sm:grid-cols-3 gap-2 mb-4">
+              <input className="text-white p-2 rounded w-full" placeholder="AI topic/chapter" value={genTopic} onChange={e=>setGenTopic(e.target.value)} />
+              <button onClick={async ()=>{
+                if(!genTopic.trim()) return;
+                const res = await fetch('/api/ai', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ mode:'generate_questions', prompt: `class: ${classNameValue}, subject: ${subject}, topic: ${genTopic}` })});
+                if(!res.ok){ alert('AI generation failed'); return; }
+                const data = await res.json();
+                const q = data?.questions || {};
+                // Save MCQs
+                if (Array.isArray(q.mcq)) {
+                  for (const m of q.mcq) {
+                    const payload = {
+                      class_name: classNameValue,
+                      subject,
+                      question: m.question,
+                      option1: (m.options && m.options[0]) || '',
+                      option2: (m.options && m.options[1]) || '',
+                      option3: (m.options && m.options[2]) || '',
+                      option4: (m.options && m.options[3]) || '',
+                      correct_option: (typeof m.correct_index === 'number' ? m.correct_index + 1 : 1)
+                    };
+                    const r = await fetch(`${API}/mcq/question/`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+                    if(!r.ok) console.warn('Failed to save MCQ');
+                  }
+                }
+                // Save shorts
+                if (Array.isArray(q.short)) {
+                  for (const s of q.short) {
+                    const r = await fetch(`${API}/short/question/`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ class_name: classNameValue, subject, question: s.question, answer: s.answer }) });
+                    if(!r.ok) console.warn('Failed to save short');
+                  }
+                }
+                // Save longs
+                if (Array.isArray(q.long)) {
+                  for (const l of q.long) {
+                    const r = await fetch(`${API}/long/question/`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ class_name: classNameValue, subject, question: l.question, answer: l.answer }) });
+                    if(!r.ok) console.warn('Failed to save long');
+                  }
+                }
+                await fetchList();
+              }}>AI Generate & Save</button>
+            </div>
             {tab === 'mcq' ? (
               <div className="grid grid-cols-1 gap-2">
                 <input className="text-white p-2 rounded w-full" placeholder="class_name" value={mcqForm.class_name} onChange={e=>setMcqForm({...mcqForm, class_name: e.target.value})} />
