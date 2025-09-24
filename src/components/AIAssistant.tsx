@@ -8,9 +8,6 @@ export default function AIAssistant() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [fileName, setFileName] = useState<string>("");
-  const [fileMime, setFileMime] = useState<string>("");
-  const [fileData, setFileData] = useState<string>("");
 
   const bg = { backgroundColor: "rgb(18,18,22)", color: "white" } as const;
 
@@ -21,11 +18,7 @@ export default function AIAssistant() {
     setInput("");
     setLoading(true);
     try {
-      const hasFile = !!fileData && !!fileMime;
-      const payload: any = hasFile
-        ? { mode: "file_qa", prompt: question, file: { name: fileName, mime: fileMime, data: fileData } }
-        : { prompt: question };
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: question }) });
       const data = await res.json();
       const text: string = typeof data?.text === 'string'
         ? data.text
@@ -33,10 +26,6 @@ export default function AIAssistant() {
           ? (data.result[0]?.generated_text || JSON.stringify(data.result))
           : JSON.stringify(data.result || data);
       setMessages((m) => [...m, { role: "ai", text: text.trim() }]);
-      // clear file after successful send
-      setFileName("");
-      setFileMime("");
-      setFileData("");
     } catch (e: any) {
       setMessages((m) => [...m, { role: "ai", text: "দুঃখিত, চেষ্টা ব্যর্থ হয়েছে।" }]);
     } finally {
@@ -46,15 +35,29 @@ export default function AIAssistant() {
 
   const speakBangla = (text: string) => {
     try {
+      if (!text) return;
+      // Stop any current speech before starting new
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
       const utter = new SpeechSynthesisUtterance(text);
       // Try to pick a Bangla-capable voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const bn = voices.find(v => /bn|bengali|bangla/i.test(v.lang) || /bangla/i.test(v.name));
-      if (bn) utter.voice = bn;
-      utter.lang = bn?.lang || 'bn-BD';
-      utter.rate = 1;
-      utter.pitch = 1;
-      window.speechSynthesis.speak(utter);
+      const assignVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const bn = voices.find(v => /bn|bengali|bangla/i.test(v.lang) || /bangla/i.test(v.name));
+        if (bn) utter.voice = bn;
+        utter.lang = bn?.lang || 'bn-BD';
+        // Natural pacing
+        utter.rate = 0.9;
+        utter.pitch = 1;
+        window.speechSynthesis.speak(utter);
+      };
+      // Some browsers load voices async
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = assignVoice;
+      } else {
+        assignVoice();
+      }
     } catch {}
   };
 
@@ -63,19 +66,7 @@ export default function AIAssistant() {
     if (sel) speakBangla(sel);
   };
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setFileName(file.name);
-    setFileMime(file.type || 'application/octet-stream');
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.includes(',') ? result.split(',')[1] : result;
-      setFileData(base64);
-    };
-    reader.readAsDataURL(file);
-  };
+  // Removed file upload UI and logic per requirement
 
   return (
     <>
@@ -183,11 +174,6 @@ export default function AIAssistant() {
               ))}
             </div>
             <div style={{ padding: 12, display: "flex", gap: 8, borderTop: "1px solid rgba(255,255,255,0.15)", flexWrap: 'wrap', alignItems: 'center' }}>
-              <label style={{ border: "1px dashed rgba(255,255,255,0.3)", padding: 8, borderRadius: 8, cursor: 'pointer' }}>
-                📎 ফাইল আপলোড
-                <input type="file" onChange={onFileChange} style={{ display: 'none' }} />
-              </label>
-              {fileName && <span style={{ opacity: 0.8 }}>{fileName}</span>}
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

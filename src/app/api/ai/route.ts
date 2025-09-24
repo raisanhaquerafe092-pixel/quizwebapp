@@ -35,7 +35,8 @@ export async function POST(req: Request) {
       if (mode === 'file_qa' && file?.data && file?.mime) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`;
         const parts: any[] = [];
-        parts.push({ text: composedPrompt });
+        const visionPrompt = `${systemInstruction}\n\nনিচের সংযুক্ত চিত্র/ফাইল বিশ্লেষণ করো এবং বাংলা ভাষায় পরিষ্কারভাবে উত্তর দাও। যদি লেখায় তথ্য থাকে তা পড়ে সংক্ষেপে ব্যাখ্যা দাও। ব্যবহারকারীর প্রশ্ন: ${prompt}`;
+        parts.push({ text: visionPrompt });
         parts.push({ inline_data: { mime_type: file.mime, data: file.data } });
         const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts }] }) });
         if (!r.ok) return NextResponse.json({ error: `Gemini error: ${r.status} ${await r.text()}` }, { status: 502 });
