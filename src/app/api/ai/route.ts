@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { prompt, model: modelFromClient, task, mode } = await req.json();
+    const { prompt, model: modelFromClient, task, mode, file } = await req.json();
     const geminiKey = process.env.GEMINI_API_KEY || (process.env.gemini_api_key as string);
     const apiToken = process.env.HF_TOKEN || process.env.HUGGINGFACE_API_TOKEN;
     if (!apiToken) {
@@ -18,7 +18,31 @@ export async function POST(req: Request) {
 
     // If Gemini key exists, use Gemini API first
     if (geminiKey) {
+      if (mode === 'study_plan') {
+        const promptPlan = `${systemInstruction}\n\nনিচের তথ্য অনুযায়ী একটি স্টাডি প্ল্যান তৈরি করো। JSON এ উত্তর দিও।\nস্কিমা: { "overview": string, "roadmap": [{"title": string, "details": string}], "key_points": string[], "game": {"description": string} }\nইনপুট: ${prompt}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`;
+        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: promptPlan }] }] }) });
+        if (!r.ok) return NextResponse.json({ error: `Gemini error: ${r.status} ${await r.text()}` }, { status: 502 });
+        const j = await r.json();
+        const raw = j?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const fence = raw.match(/```(?:json)?\n([\s\S]*?)```/i);
+        let jsonText = fence?.[1] || (raw.match(/\{[\s\S]*\}/)?.[0] ?? '{}');
+        let parsed: any = {};
+        try { parsed = JSON.parse(jsonText); } catch { parsed = {}; }
+        return NextResponse.json({ plan: parsed, model: 'gemini-1.5-flash' });
+      }
       if (mode === 'generate_questions') {
+      if (mode === 'file_qa' && file?.data && file?.mime) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`;
+        const parts: any[] = [];
+        parts.push({ text: composedPrompt });
+        parts.push({ inline_data: { mime_type: file.mime, data: file.data } });
+        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts }] }) });
+        if (!r.ok) return NextResponse.json({ error: `Gemini error: ${r.status} ${await r.text()}` }, { status: 502 });
+        const j = await r.json();
+        const text = j?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        return NextResponse.json({ text, model: 'gemini-1.5-flash' });
+      }
         const schemaHint = `তুমি নিচের JSON স্কিমা অনুসারে প্রশ্ন তৈরি করবে। বাংলায় প্রশ্ন লেখো। শুধুমাত্র বৈধ JSON রেসপন্স দেবে, অন্য কিছু নয়।
 স্কিমা:
 {
