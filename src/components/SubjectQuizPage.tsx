@@ -44,14 +44,30 @@ export default function SubjectQuizPage({ classNameValue = "nine" }: { className
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
   const subject = useMemo(() => {
-    // Expecting path like /vocational/nine/<subject>
+    // Support paths like /vocational/nine/<subject> or /vocational/nine/<subject>/<type>
     const parts = pathname.split("/").filter(Boolean);
     const idx = parts.indexOf("nine");
-    if (idx !== -1 && parts[idx + 1]) {
-      return parts[idx + 1];
+    const quizTypeSet = new Set(["mcq", "short", "long"]);
+    if (idx !== -1) {
+      // search forward for the first segment after 'nine' that is not a quiz type
+      for (let i = idx + 1; i < parts.length; i++) {
+        if (!quizTypeSet.has(parts[i])) return parts[i];
+      }
     }
-    // Fallback to last segment
-    return parts[parts.length - 1] || "bangla";
+    // Fallback to last non-quizType segment
+    for (let i = parts.length - 1; i >= 0; i--) {
+      if (!quizTypeSet.has(parts[i])) return parts[i] || "bangla";
+    }
+    return "bangla";
+  }, [pathname]);
+
+  // Sync quiz type from path when present, e.g., .../mcq, .../short, .../long
+  useEffect(() => {
+    const parts = pathname.split("/").filter(Boolean);
+    const last = parts[parts.length - 1];
+    if (last === "mcq" || last === "short" || last === "long") {
+      setQuizType(last as QuizType);
+    }
   }, [pathname]);
 
   useEffect(() => {
@@ -176,34 +192,37 @@ export default function SubjectQuizPage({ classNameValue = "nine" }: { className
         <div style={cardStyle}>
           {quizType === "mcq" && (
             hasQuestions(mcqQuestions) ? (
-              <div>
-                <p style={{ fontWeight: 600 }}>{currentMcq?.question}</p>
-                <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
-                  {[1, 2, 3, 4].map((n) => {
-                    const label = (currentMcq as any)[`option${n}`] as string;
-                    return (
-                      <label key={n} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <input
-                          type="radio"
-                          name="mcq"
-                          checked={selectedOption === n}
-                          onChange={() => setSelectedOption(n)}
-                        />
-                        <span>{label}</span>
-                      </label>
-                    );
-                  })}
+              currentMcq ? (
+                <div>
+                  <p style={{ fontWeight: 600 }}>{currentMcq.question}</p>
+                  <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
+                    {[1, 2, 3, 4].map((n) => {
+                      const label = (currentMcq as any)?.[`option${n}`] ?? "";
+                      return (
+                        <label key={n} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <input
+                            type="radio"
+                            name="mcq"
+                            checked={selectedOption === n}
+                            onChange={() => setSelectedOption(n)}
+                          />
+                          <span>{label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <form onSubmit={onSubmit} style={{ marginTop: 12 }}>
+                    <button type="submit">Submit</button>
+                  </form>
+                  {showCorrect && (
+                    <p style={{ marginTop: 8 }}>
+                      সঠিক উত্তর: {(currentMcq as any)?.[`option${currentMcq.correct_option}`] ?? ""}
+                    </p>
+                  )}
                 </div>
-                <form onSubmit={onSubmit} style={{ marginTop: 12 }}>
-                  <button type="submit">Submit</button>
-                </form>
-                {showCorrect && (
-                  <p style={{ marginTop: 8 }}>
-                    সঠিক উত্তর: {currentMcq ? (currentMcq as any)[`option${currentMcq.correct_option}`] : ""}
-                  </p>
-                )}
-                {!currentMcq && <p>সব প্রশ্ন শেষ হয়েছে।</p>}
-              </div>
+              ) : (
+                <p>সব প্রশ্ন শেষ হয়েছে।</p>
+              )
             ) : (
               <p>কোনো প্রশ্ন পাওয়া যায়নি।</p>
             )

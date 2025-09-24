@@ -79,74 +79,78 @@ export default function page() {
   const bg: React.CSSProperties = { backgroundColor: 'rgb(18,18,22)', color: 'white' };
 
   return (
-    <div style={bg} className="min-h-screen p-4">
-      <h1 className="text-3xl font-bold mb-4">Admin Panel</h1>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        <button className="button" onClick={() => setTab('mcq')}>MCQ</button>
-        <button className="button" onClick={() => setTab('short')}>Short</button>
-        <button className="button" onClick={() => setTab('long')}>Long</button>
-      </div>
-
-      <div className="grid sm:grid-cols-3 gap-2 mb-4 max-w-xl">
-        <input className="text-black p-2 rounded" placeholder="class (nine/ten)" value={classNameValue} onChange={e=>setClassNameValue(e.target.value)} />
-        <input className="text-black p-2 rounded" placeholder="subject (bangla, math, ...)" value={subject} onChange={e=>setSubject(e.target.value)} />
-        <button onClick={fetchList}>Filter</button>
-      </div>
-
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-400">{error}</p>}
-
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* List */}
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Items</h2>
-          <div className="space-y-2">
-            {list.map((item: any) => (
-              <div key={item.id} className="p-3 rounded border border-white/20">
-                <div className="font-semibold">{item.question}</div>
-                <div className="text-sm opacity-70">{item.class_name} • {item.subject}</div>
-                {tab === 'mcq' && (
-                  <ul className="list-disc ml-5">
-                    <li>{item.option1}</li>
-                    <li>{item.option2}</li>
-                    <li>{item.option3}</li>
-                    <li>{item.option4}</li>
-                  </ul>
-                )}
-                {tab !== 'mcq' && <div className="opacity-80">Ans: {item.answer}</div>}
-                <div className="flex gap-2 mt-2">
-                  <button onClick={() => deleteItem(item.id)}>Delete</button>
-                </div>
-              </div>
-            ))}
+    <div style={bg} className="min-h-screen p-4 md:p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <h1 className="text-3xl font-bold">Admin Panel</h1>
+          <div className="flex flex-wrap gap-2">
+            <button className="button" onClick={() => setTab('mcq')}>MCQ</button>
+            <button className="button" onClick={() => setTab('short')}>Short</button>
+            <button className="button" onClick={() => setTab('long')}>Long</button>
           </div>
         </div>
 
-        {/* Create */}
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Create New</h2>
-          {tab === 'mcq' ? (
-            <div className="grid grid-cols-1 gap-2">
-              <input className="text-black p-2 rounded" placeholder="class_name" value={mcqForm.class_name} onChange={e=>setMcqForm({...mcqForm, class_name: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="subject" value={mcqForm.subject} onChange={e=>setMcqForm({...mcqForm, subject: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="question" value={mcqForm.question} onChange={e=>setMcqForm({...mcqForm, question: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="option1" value={mcqForm.option1} onChange={e=>setMcqForm({...mcqForm, option1: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="option2" value={mcqForm.option2} onChange={e=>setMcqForm({...mcqForm, option2: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="option3" value={mcqForm.option3} onChange={e=>setMcqForm({...mcqForm, option3: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="option4" value={mcqForm.option4} onChange={e=>setMcqForm({...mcqForm, option4: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="correct_option (1-4)" type="number" value={mcqForm.correct_option} onChange={e=>setMcqForm({...mcqForm, correct_option: Number(e.target.value)})} />
-              <button onClick={() => createItem(mcqForm)}>Create MCQ</button>
+        <div className="grid sm:grid-cols-3 gap-2 mb-5 w-full max-w-2xl">
+          <input className=" p-2 rounded w-full placeholder:text-white"  placeholder="class (nine/ten)" value={classNameValue} onChange={e=>setClassNameValue(e.target.value)} />
+          <input className=" p-2 rounded w-full placeholder:text-white" placeholder="subject (bangla, math, ...)" value={subject} onChange={e=>setSubject(e.target.value)} />
+          <button onClick={fetchList}>Filter</button>
+        </div>
+
+        {loading && <p className="mb-3">Loading...</p>}
+        {error && <p className="text-red-400 mb-3">{error}</p>}
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* List */}
+          <div className="rounded-xl border border-white/15 p-3 md:p-4">
+            <h2 className="text-xl font-semibold mb-3">Items</h2>
+            <div className="space-y-3 max-h-[65vh] overflow-auto pr-1">
+              {list.map((item: any) => (
+                <div key={item.id} className="p-3 rounded border border-white/20">
+                  <div className="font-semibold break-words">{item.question}</div>
+                  <div className="text-sm opacity-70">{item.class_name} • {item.subject}</div>
+                  {tab === 'mcq' && (
+                    <ul className="list-disc ml-5">
+                      <li className="break-words">{item.option1}</li>
+                      <li className="break-words">{item.option2}</li>
+                      <li className="break-words">{item.option3}</li>
+                      <li className="break-words">{item.option4}</li>
+                    </ul>
+                  )}
+                  {tab !== 'mcq' && <div className="opacity-80 break-words">Ans: {item.answer}</div>}
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={() => deleteItem(item.id)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+              {list.length === 0 && <p className="opacity-70">No items found.</p>}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-2">
-              <input className="text-black p-2 rounded" placeholder="class_name" value={qaForm.class_name} onChange={e=>setQaForm({...qaForm, class_name: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="subject" value={qaForm.subject} onChange={e=>setQaForm({...qaForm, subject: e.target.value})} />
-              <input className="text-black p-2 rounded" placeholder="question" value={qaForm.question} onChange={e=>setQaForm({...qaForm, question: e.target.value})} />
-              <textarea className="text-black p-2 rounded" placeholder="answer" value={qaForm.answer} onChange={e=>setQaForm({...qaForm, answer: e.target.value})} />
-              <button onClick={() => createItem(qaForm)}>{tab === 'short' ? 'Create Short' : 'Create Long'}</button>
-            </div>
-          )}
+          </div>
+
+          {/* Create */}
+          <div className="rounded-xl border border-white/15 p-3 md:p-4">
+            <h2 className="text-xl font-semibold mb-3">Create New</h2>
+            {tab === 'mcq' ? (
+              <div className="grid grid-cols-1 gap-2">
+                <input className="text-white p-2 rounded w-full" placeholder="class_name" value={mcqForm.class_name} onChange={e=>setMcqForm({...mcqForm, class_name: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="subject" value={mcqForm.subject} onChange={e=>setMcqForm({...mcqForm, subject: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="question" value={mcqForm.question} onChange={e=>setMcqForm({...mcqForm, question: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="option1" value={mcqForm.option1} onChange={e=>setMcqForm({...mcqForm, option1: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="option2" value={mcqForm.option2} onChange={e=>setMcqForm({...mcqForm, option2: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="option3" value={mcqForm.option3} onChange={e=>setMcqForm({...mcqForm, option3: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="option4" value={mcqForm.option4} onChange={e=>setMcqForm({...mcqForm, option4: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="correct_option (1-4)" type="number" value={mcqForm.correct_option} onChange={e=>setMcqForm({...mcqForm, correct_option: Number(e.target.value)})} />
+                <button onClick={() => createItem(mcqForm)}>Create MCQ</button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-2">
+                <input className="text-white p-2 rounded w-full" placeholder="class_name" value={qaForm.class_name} onChange={e=>setQaForm({...qaForm, class_name: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="subject" value={qaForm.subject} onChange={e=>setQaForm({...qaForm, subject: e.target.value})} />
+                <input className="text-white p-2 rounded w-full" placeholder="question" value={qaForm.question} onChange={e=>setQaForm({...qaForm, question: e.target.value})} />
+                <textarea className="text-white p-2 rounded w-full min-h-28" placeholder="answer" value={qaForm.answer} onChange={e=>setQaForm({...qaForm, answer: e.target.value})} />
+                <button onClick={() => createItem(qaForm)}>{tab === 'short' ? 'Create Short' : 'Create Long'}</button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
