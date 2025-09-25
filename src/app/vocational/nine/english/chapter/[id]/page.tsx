@@ -6,8 +6,9 @@ async function getChapter(id: string) {
   return res.json();
 }
 
-export default async function ChapterDetail({ params }: { params: { id: string } }) {
-  const chapter = await getChapter(params.id);
+export default async function ChapterDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const chapter = await getChapter(id);
   return (
     <div className="min-h-screen" style={{ backgroundColor: "rgb(18,18,22)", color: "white" }}>
       <div className="max-w-4xl mx-auto p-4">
@@ -24,5 +25,3 @@ export default async function ChapterDetail({ params }: { params: { id: string }
     </div>
   )
 }
-
-

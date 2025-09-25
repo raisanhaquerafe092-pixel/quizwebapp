@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 
 // Class Nine subject books information
@@ -13,7 +12,7 @@ const nineSubjects = [
     description: "বাংলা ভাষা ও সাহিত্য",
     icon: "📚",
     color: "from-green-500 to-emerald-600",
-    pdfPath: "/pdfs/class-nine/bangla.pdf",
+    pdfPath: "/pdfs/class-nine/bangla.html",
     hasBook: true
   },
   {

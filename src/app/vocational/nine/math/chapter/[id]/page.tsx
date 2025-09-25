@@ -1,13 +1,14 @@
 import SubjectQuizPage from "@/components/SubjectQuizPage";
 
 async function getChapter(id: string) {
-  const res = await fetch(`http://127.0.0.1:8000/content/chapter/${id}/", { cache: "no-store" });
+  const res = await fetch(`http://127.0.0.1:8000/content/chapter/${id}/`, { cache: "no-store" });
   if (!res.ok) return null;
   return res.json();
 }
 
-export default async function ChapterDetail({ params }: { params: { id: string } }) {
-  const chapter = await getChapter(params.id);
+export default async function ChapterDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const chapter = await getChapter(id);
   return (
     <div className="min-h-screen" style={{ backgroundColor: "rgb(18,18,22)", color: "white" }}>
       <div className="max-w-4xl mx-auto p-4">
@@ -24,5 +25,3 @@ export default async function ChapterDetail({ params }: { params: { id: string }
     </div>
   )
 }
-
-

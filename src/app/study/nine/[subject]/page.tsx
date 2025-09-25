@@ -12,7 +12,7 @@ const subjectData: { [key: string]: { label: string; englishLabel: string; descr
     description: "বাংলা ভাষা ও সাহিত্য",
     icon: "📚",
     color: "from-green-500 to-emerald-600",
-    pdfPath: "/pdfs/class-nine/bangla.pdf",
+    pdfPath: "/pdfs/class-nine/bangla.html",
     hasBook: true
   },
   "english": {

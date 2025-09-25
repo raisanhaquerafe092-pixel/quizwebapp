@@ -23,7 +23,6 @@ export default function PDFViewerWithAI({
   onBack 
 }: PDFViewerWithAIProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
   const [scale, setScale] = useState(1.0);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -36,7 +35,6 @@ export default function PDFViewerWithAI({
   ]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
@@ -116,10 +114,8 @@ export default function PDFViewerWithAI({
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       pdfContainerRef.current?.requestFullscreen();
-      setIsFullscreen(true);
     } else {
       document.exitFullscreen();
-      setIsFullscreen(false);
     }
   };
 
@@ -169,11 +165,11 @@ export default function PDFViewerWithAI({
                   </svg>
                 </button>
                 <span className="text-sm font-medium">
-                  {currentPage} / {totalPages || "---"}
+                  Page {currentPage}
                 </span>
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  disabled={false}
                   className="p-1 hover:bg-white/20 rounded disabled:opacity-50"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,12 +252,12 @@ export default function PDFViewerWithAI({
             </button>
             
             <span className="text-sm font-medium">
-              {currentPage} / {totalPages || "---"}
+              Page {currentPage}
             </span>
             
             <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={false}
               className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg disabled:opacity-50"
             >
               পরবর্তী

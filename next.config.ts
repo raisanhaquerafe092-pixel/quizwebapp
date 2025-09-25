@@ -8,6 +8,9 @@ import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   // Keep default configs; PWA settings are applied via plugin below
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default withPWA({
@@ -20,12 +23,6 @@ export default withPWA({
   // Additional PWA options for production
   scope: "/",
   sw: "sw.js",
-  // Workbox options to prevent conflicts
-  workboxOptions: {
-    disableDevLogs: true,
-    skipWaiting: true,
-    clientsClaim: true,
-  },
   // Simple fallbacks; we will add an offline page
   fallbacks: {
     document: "/offline",

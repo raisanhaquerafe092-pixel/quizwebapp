@@ -21,9 +21,8 @@ const subjects = [
 export default function StudyPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [chapter, setChapter] = useState("");
-  const [subjectKey, setSubjectKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [plan, setPlan] = useState<any>(null);
+  const [plan, setPlan] = useState<Record<string, any> | null>(null);
 
   const requestPlan = async (subj: string) => {
     if (!chapter.trim()) return;
@@ -112,7 +111,6 @@ export default function StudyPage() {
                 className="w-full text-left p-4"
                 onClick={() => {
                   setExpanded(expanded === s.key ? null : s.key);
-                  setSubjectKey(s.key);
                 }}
               >
                 <div className="flex items-center justify-between">
@@ -154,7 +152,7 @@ export default function StudyPage() {
                       {plan?.overview && <p className="opacity-90 mb-3">{plan.overview}</p>}
                       {Array.isArray(plan?.roadmap) && (
                         <div className="space-y-2">
-                          {plan.roadmap.map((step: any, idx: number) => (
+                          {plan.roadmap.map((step: { title: string; details?: string }, idx: number) => (
                             <div key={idx} className="p-2 rounded bg-white/5">
                               <div className="font-semibold">Step {idx + 1}: {step.title}</div>
                               {step.details && <div className="opacity-90 text-sm">{step.details}</div>}

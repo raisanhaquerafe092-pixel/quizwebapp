@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 type Tab = 'mcq' | 'short' | 'long';
 
@@ -25,12 +25,12 @@ type Qa = {
 
 const API = 'http://127.0.0.1:8000';
 
-export default function page() {
+export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('mcq');
   const [classNameValue, setClassNameValue] = useState('nine');
   const [subject, setSubject] = useState('bangla');
 
-  const [list, setList] = useState<any[]>([]);
+  const [list, setList] = useState<(Mcq | Qa)[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string|null>(null);
 
@@ -40,32 +40,32 @@ export default function page() {
     return `${API}/long/question/`;
   }, [tab]);
 
-  const fetchList = async () => {
+  const fetchList = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(`${endpoint}?class_name=${encodeURIComponent(classNameValue)}&subject=${encodeURIComponent(subject)}`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Failed to fetch');
       setList(await res.json());
-    } catch (e: any) {
-      setError(e.message || 'Error');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [endpoint, classNameValue, subject]);
 
-  useEffect(() => { fetchList(); }, [tab, classNameValue, subject]);
+  useEffect(() => { fetchList(); }, [tab, classNameValue, subject, fetchList]);
 
-  const createItem = async (data: any) => {
+  const createItem = async (data: Mcq | Qa) => {
     const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
     if (!res.ok) throw new Error('Create failed');
     await fetchList();
   };
-  const updateItem = async (id: number, data: any) => {
-    const res = await fetch(`${endpoint}${id}/`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    if (!res.ok) throw new Error('Update failed');
-    await fetchList();
-  };
+  // const updateItem = async (id: number, data: Mcq | Qa) => {
+  //   const res = await fetch(`${endpoint}${id}/`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  //   if (!res.ok) throw new Error('Update failed');
+  //   await fetchList();
+  // };
   const deleteItem = async (id: number) => {
     const res = await fetch(`${endpoint}${id}/`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Delete failed');
@@ -105,11 +105,11 @@ export default function page() {
           <div className="rounded-xl border border-white/15 p-3 md:p-4">
             <h2 className="text-xl font-semibold mb-3">Items</h2>
             <div className="space-y-3 max-h-[65vh] overflow-auto pr-1">
-              {list.map((item: any) => (
+              {list.map((item: Mcq | Qa) => (
                 <div key={item.id} className="p-3 rounded border border-white/20">
                   <div className="font-semibold break-words">{item.question}</div>
                   <div className="text-sm opacity-70">{item.class_name} • {item.subject}</div>
-                  {tab === 'mcq' && (
+                  {tab === 'mcq' && 'option1' in item && (
                     <ul className="list-disc ml-5">
                       <li className="break-words">{item.option1}</li>
                       <li className="break-words">{item.option2}</li>
@@ -117,9 +117,9 @@ export default function page() {
                       <li className="break-words">{item.option4}</li>
                     </ul>
                   )}
-                  {tab !== 'mcq' && <div className="opacity-80 break-words">Ans: {item.answer}</div>}
+                  {tab !== 'mcq' && 'answer' in item && <div className="opacity-80 break-words">Ans: {item.answer}</div>}
                   <div className="flex gap-2 mt-2">
-                    <button onClick={() => deleteItem(item.id)}>Delete</button>
+                    <button onClick={() => item.id && deleteItem(item.id)}>Delete</button>
                   </div>
                 </div>
               ))}
