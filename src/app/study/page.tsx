@@ -63,16 +63,29 @@ export default function StudyPage() {
           <h2 className="text-xl font-semibold mb-4 text-center text-gray-300">
             Quick Access to Classes
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link href="/vocational/nine" className="group block">
               <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 p-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-xl sm:text-2xl font-semibold">Class Nine</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold">প্রশ্ন অনুশীলন</h2>
                   <span className="text-2xl">🎨</span>
                 </div>
-                <p className="text-indigo-100 text-sm">All subjects: MCQ, Short, Long practice.</p>
+                <p className="text-indigo-100 text-sm">MCQ, Short, Long questions practice</p>
                 <div className="mt-3 text-xs text-indigo-200">
-                  → Access all study materials
+                  → Practice questions
+                </div>
+              </div>
+            </Link>
+            
+            <Link href="/study/nine" className="group block">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 p-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-lg sm:text-xl font-semibold">পাঠ্যবই পড়ুন</h2>
+                  <span className="text-2xl">📚</span>
+                </div>
+                <p className="text-green-100 text-sm">নবম শ্রেণির সকল বিষয়ের PDF বই</p>
+                <div className="mt-3 text-xs text-green-200">
+                  → Read textbooks with AI help
                 </div>
               </div>
             </Link>

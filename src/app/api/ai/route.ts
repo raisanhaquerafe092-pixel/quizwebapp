@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { prompt, model: modelFromClient, task, mode, file } = await req.json();
+    const { prompt, model: modelFromClient, task, mode, file, subject, subjectLabel, currentPage, question, context } = await req.json();
     const geminiKey = process.env.GEMINI_API_KEY || (process.env.gemini_api_key as string);
     const apiToken = process.env.HF_TOKEN || process.env.HUGGINGFACE_API_TOKEN;
     if (!apiToken) {
@@ -31,6 +31,56 @@ export async function POST(req: Request) {
         try { parsed = JSON.parse(jsonText); } catch { parsed = {}; }
         return NextResponse.json({ plan: parsed, model: 'gemini-1.5-flash' });
       }
+      
+      if (mode === 'pdf_chat') {
+        // Handle PDF-related questions with context
+        const pdfChatPrompt = `${systemInstruction}\n\n
+আপনি একজন বিশেষজ্ঞ শিক্ষক যিনি ${subjectLabel} বিষয়ে পড়াচ্ছেন। শিক্ষার্থী এই বিষয়ের পাঠ্যবই পড়ছে এবং বর্তমানে পৃষ্ঠা ${currentPage} এ রয়েছে।
+
+প্রসঙ্গ: ${context || 'শিক্ষার্থী পাঠ্যবই পড়ছে'}
+
+শিক্ষার্থীর প্রশ্ন: ${question}
+
+অনুগ্রহ করে:
+1. প্রশ্নের সরাসরি উত্তর দিন
+2. বিষয়বস্তু সহজভাবে ব্যাখ্যা করুন
+3. প্রয়োজনে উদাহরণ দিন
+4. অতিরিক্ত তথ্য যা সহায়ক হতে পারে তা শেয়ার করুন
+5. পরীক্ষার জন্য গুরুত্বপূর্ণ বিষয়গুলো উল্লেখ করুন
+
+বাংলায় বিস্তারিত এবং সহায়ক উত্তর দিন:`;
+        
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`;
+        const r = await fetch(url, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ 
+            contents: [{ 
+              role: 'user', 
+              parts: [{ text: pdfChatPrompt }] 
+            }] 
+          }) 
+        });
+        
+        if (!r.ok) {
+          return NextResponse.json({ 
+            response: 'দুঃখিত, AI সেবা বর্তমানে অনুপলব্ধ। পরে আবার চেষ্টা করুন।', 
+            model: 'gemini-1.5-flash',
+            error: true
+          }, { status: 502 });
+        }
+        
+        const j = await r.json();
+        const response = j?.candidates?.[0]?.content?.parts?.[0]?.text || 'দুঃখিত, আমি এই প্রশ্নের উত্তর দিতে পারছি না।';
+        
+        return NextResponse.json({ 
+          response, 
+          model: 'gemini-1.5-flash',
+          subject: subjectLabel,
+          currentPage
+        });
+      }
+      
       if (mode === 'generate_questions') {
       if (mode === 'file_qa' && file?.data && file?.mime) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`;
