@@ -18,27 +18,27 @@
       "type": "image/x-icon"
     },
     {
-      "src": "/favicon-192.png",
+      "src": "/icon-192.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/favicon-512.png",
+      "src": "/icon-512.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/favicon-192.png",
+      "src": "/icon-192.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "maskable"
     },
     {
-      "src": "/favicon-512.png",
+      "src": "/icon-512.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "maskable"
     }
   ],
@@ -48,20 +48,20 @@
       "short_name": "Exam",
       "description": "Start taking practice exams",
       "url": "/exam",
-      "icons": [{ "src": "/favicon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
     },
     {
       "name": "Study Materials",
       "short_name": "Study",
       "description": "Access learning resources",
       "url": "/study",
-      "icons": [{ "src": "/favicon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
     }
   ],
   "screenshots": [
     {
-      "src": "/favicon-512.png",
-      "type": "image/png",
+      "src": "/icon-512.svg",
+      "type": "image/svg+xml",
       "sizes": "512x512",
       "form_factor": "wide"
     }

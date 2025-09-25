@@ -25,6 +25,16 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Quiz Web App",
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon-192.svg', sizes: '192x192' },
+      { url: '/icon-512.svg', sizes: '512x512' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.svg', sizes: '180x180' }
+    ],
+  },
 };
 
 export const viewport = {

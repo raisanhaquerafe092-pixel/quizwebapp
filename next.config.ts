@@ -15,10 +15,15 @@ export default withPWA({
   // We'll register SW manually via a client component in App Router
   register: false,
   skipWaiting: true,
-  // Enable PWA only in production to avoid dev auto-refresh loops
-  disable: process.env.NODE_ENV === "development",
+  // Enable PWA in both development and production
+  disable: false,
+  // Additional PWA options
+  scope: "/",
+  sw: "sw.js",
   // Simple fallbacks; we will add an offline page
   fallbacks: {
     document: "/offline",
   },
+  // Exclude certain files from being processed
+  publicExcludes: ["!noprecache/**/*"],
 })(nextConfig);
