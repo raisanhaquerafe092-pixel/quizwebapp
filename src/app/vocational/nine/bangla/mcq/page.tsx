@@ -1,4 +1,5 @@
 // app/mcq/page.tsx
+import { a } from "framer-motion/m";
 import React from "react";
 
 interface Question {
@@ -6,7 +7,10 @@ interface Question {
   question: string;
   options: string[];
   correct_answer: string;
-  option1: string;
+  option1: number;
+  option2: string;
+  option3: string;
+  option4: string;
 }
 
 async function getQuestions(): Promise<Question[]> {
@@ -27,7 +31,7 @@ export default async function McqPage() {
   console.log(questions);
   console.log(questions.map((q) => q.option1));
   console.log(questions[0].correct_answer);
-  
+
 
   return (
     <div
@@ -76,20 +80,25 @@ export default async function McqPage() {
                 marginBottom: "15px",
               }}
             >
-                
-                
-
-              <p style={{ fontWeight: "bold" }}>{q.question}</p>
-              <ol></ol>
-              
+              <ol>
+                <li >{q.option1}</li>
+                <li>{q.option2}</li>
+                <li>{q.option3}</li>
+                <li>{q.option4}</li>
+              </ol>
             </div>
+
+            
           ))}
-        </div>
+      </div>
       )}
-    
+      <form className="text-center" action="">
+       <input type="text" className="outline-none" placeholder="Type your Answer (just answer num)"  />
+       <br /> <br /> <br />
+       <button type="submit">Submit Answer</button>
+      
+      </form>
     </div>
-
-
 
   );
 }

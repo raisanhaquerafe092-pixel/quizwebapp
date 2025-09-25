@@ -170,3 +170,8 @@ body{
   background-color: rgb(18,18,22) ;
   color:rgb(255,255,255);
 }
+
+
+.outline-none{
+  outline-color:#41465b;
+}
