@@ -3,9 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegister from "./sw-register";
 import ClientAIAssistant from "@/components/ClientAIAssistant";
-import dynamic from "next/dynamic";
-
-const PWAInstall = dynamic(() => import("@/components/PWAInstall"), { ssr: false });
+import PWAInstall from "@/components/PWAInstall";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
