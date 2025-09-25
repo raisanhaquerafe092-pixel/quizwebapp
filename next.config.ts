@@ -15,11 +15,17 @@ export default withPWA({
   // We'll register SW manually via a client component in App Router
   register: false,
   skipWaiting: true,
-  // Enable PWA in both development and production
-  disable: false,
-  // Additional PWA options
+  // Disable PWA in development to prevent refresh loops, enable in production
+  disable: process.env.NODE_ENV === "development",
+  // Additional PWA options for production
   scope: "/",
   sw: "sw.js",
+  // Workbox options to prevent conflicts
+  workboxOptions: {
+    disableDevLogs: true,
+    skipWaiting: true,
+    clientsClaim: true,
+  },
   // Simple fallbacks; we will add an offline page
   fallbacks: {
     document: "/offline",
