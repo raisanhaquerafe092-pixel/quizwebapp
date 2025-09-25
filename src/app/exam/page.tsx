@@ -1,5 +1,4 @@
 import Image from "next/image"
-import Arr from  "@/../public/left-arrow.png"
 import Link from "next/link"
 
 export default function ExamPage() {
@@ -8,7 +7,7 @@ export default function ExamPage() {
       {/* Header with Navigation */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         <Link href="/" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
-          <Image src={Arr} alt="back" width={24} height={24} className="rotate-0"/>
+          <Image src="/left-arrow.png" alt="back" width={24} height={24} className="rotate-0"/>
           <span className="text-sm">Back to Home</span>
         </Link>
         <div className="text-2xl">📝</div>

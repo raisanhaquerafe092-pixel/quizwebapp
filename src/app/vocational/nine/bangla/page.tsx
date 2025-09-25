@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import Arr from  "@/../public/left-arrow.png"
 
 export default function BanglaPage() {
   return (
@@ -13,7 +12,7 @@ export default function BanglaPage() {
           className="inline-flex items-center gap-2 mb-8 text-blue-200 hover:text-white transition-colors duration-200 group"
         >
           <Image 
-            src={Arr} 
+            src="/left-arrow.png" 
             alt="Back" 
             width={35} 
             height={35}

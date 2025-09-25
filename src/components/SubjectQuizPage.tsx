@@ -178,39 +178,29 @@ export default function SubjectQuizPage({ classNameValue = "nine" }: { className
 
   const hasQuestions = (list: unknown[]) => Array.isArray(list) && list.length > 0;
 
+  const nextQuestion = () => {
+    setShowCorrect(false);
+    setSelectedOption(null);
+    setTextAnswer("");
+    setIsCorrect(null);
+    setCurrentIndex((v) => v + 1);
+  };
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (quizType === "mcq" && currentMcq) {
       if (selectedOption == null) return;
       const correct = selectedOption === currentMcq.correct_option;
       setIsCorrect(correct);
-      if (correct) {
-        setShowCorrect(false);
-        setSelectedOption(null);
-        setCurrentIndex((v) => v + 1);
-      } else {
-        setShowCorrect(true);
-      }
+      setShowCorrect(true); // Always show correct answer for comparison
     } else if (quizType === "short" && currentShort) {
       const correct = textAnswer.trim().toLowerCase() === currentShort.answer.trim().toLowerCase();
       setIsCorrect(correct);
-      if (correct) {
-        setShowCorrect(false);
-        setTextAnswer("");
-        setCurrentIndex((v) => v + 1);
-      } else {
-        setShowCorrect(true);
-      }
+      setShowCorrect(true); // Always show correct answer for comparison
     } else if (quizType === "long" && currentLong) {
       const correct = textAnswer.trim().length > 0 && textAnswer.trim().toLowerCase() === currentLong.answer.trim().toLowerCase();
       setIsCorrect(correct);
-      if (correct) {
-        setShowCorrect(false);
-        setTextAnswer("");
-        setCurrentIndex((v) => v + 1);
-      } else {
-        setShowCorrect(true);
-      }
+      setShowCorrect(true); // Always show correct answer for comparison
     }
   };
 
@@ -375,16 +365,25 @@ export default function SubjectQuizPage({ classNameValue = "nine" }: { className
                       })}
                     </div>
 
-                    {/* Submit Button */}
-                    <form onSubmit={onSubmit}>
+                    {/* Submit/Next Button */}
+                    {!showCorrect ? (
+                      <form onSubmit={onSubmit}>
+                        <button 
+                          type="submit" 
+                          disabled={selectedOption === null}
+                          className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
+                        >
+                          উত্তর জমা দিন
+                        </button>
+                      </form>
+                    ) : (
                       <button 
-                        type="submit" 
-                        disabled={selectedOption === null || showCorrect}
-                        className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
+                        onClick={nextQuestion}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                       >
-                        {showCorrect ? 'পরবর্তী প্রশ্ন' : 'উত্তর জমা দিন'}
+                        পরবর্তী প্রশ্ন →
                       </button>
-                    </form>
+                    )}
 
                     {/* Correct Answer Display */}
                     {showCorrect && (
@@ -434,31 +433,39 @@ export default function SubjectQuizPage({ classNameValue = "nine" }: { className
                     </div>
 
                     {/* Answer Input */}
-                    <form onSubmit={onSubmit} className="space-y-4">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={textAnswer}
-                          onChange={(e) => setTextAnswer(e.target.value)}
-                          placeholder="উত্তর লিখুন..."
-                          disabled={showCorrect}
-                          className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-6 py-4 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
-                        />
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                          <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                            textAnswer.trim() ? 'bg-green-500' : 'bg-gray-500'
-                          }`}></div>
+                    {!showCorrect ? (
+                      <form onSubmit={onSubmit} className="space-y-4">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={textAnswer}
+                            onChange={(e) => setTextAnswer(e.target.value)}
+                            placeholder="উত্তর লিখুন..."
+                            className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-6 py-4 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                          />
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                              textAnswer.trim() ? 'bg-green-500' : 'bg-gray-500'
+                            }`}></div>
+                          </div>
                         </div>
-                      </div>
-                      
+                        
+                        <button 
+                          type="submit" 
+                          disabled={!textAnswer.trim()}
+                          className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
+                        >
+                          উত্তর পরীক্ষা করুন
+                        </button>
+                      </form>
+                    ) : (
                       <button 
-                        type="submit" 
-                        disabled={!textAnswer.trim() || showCorrect}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
+                        onClick={nextQuestion}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                       >
-                        {showCorrect ? 'পরবর্তী প্রশ্ন' : 'উত্তর পরীক্ষা করুন'}
+                        পরবর্তী প্রশ্ন →
                       </button>
-                    </form>
+                    )}
 
                     {/* Answer Feedback */}
                     {showCorrect && (
@@ -525,34 +532,42 @@ export default function SubjectQuizPage({ classNameValue = "nine" }: { className
                     </div>
 
                     {/* Answer Textarea */}
-                    <form onSubmit={onSubmit} className="space-y-4">
-                      <div className="relative">
-                        <textarea
-                          value={textAnswer}
-                          onChange={(e) => setTextAnswer(e.target.value)}
-                          placeholder="বিস্তারিত উত্তর লিখুন..."
-                          disabled={showCorrect}
-                          rows={6}
-                          className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-6 py-4 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none disabled:opacity-50"
-                        />
-                        <div className="absolute right-4 bottom-4">
-                          <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                            textAnswer.trim().length > 10 ? 'bg-green-500' : textAnswer.trim() ? 'bg-yellow-500' : 'bg-gray-500'
-                          }`}></div>
+                    {!showCorrect ? (
+                      <form onSubmit={onSubmit} className="space-y-4">
+                        <div className="relative">
+                          <textarea
+                            value={textAnswer}
+                            onChange={(e) => setTextAnswer(e.target.value)}
+                            placeholder="বিস্তারিত উত্তর লিখুন..."
+                            rows={6}
+                            className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-6 py-4 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none"
+                          />
+                          <div className="absolute right-4 bottom-4">
+                            <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                              textAnswer.trim().length > 10 ? 'bg-green-500' : textAnswer.trim() ? 'bg-yellow-500' : 'bg-gray-500'
+                            }`}></div>
+                          </div>
+                          <div className="absolute left-4 bottom-2 text-xs text-blue-200/70">
+                            {textAnswer.length} অক্ষর
+                          </div>
                         </div>
-                        <div className="absolute left-4 bottom-2 text-xs text-blue-200/70">
-                          {textAnswer.length} অক্ষর
-                        </div>
-                      </div>
-                      
+                        
+                        <button 
+                          type="submit" 
+                          disabled={!textAnswer.trim()}
+                          className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
+                        >
+                          উত্তর পরীক্ষা করুন
+                        </button>
+                      </form>
+                    ) : (
                       <button 
-                        type="submit" 
-                        disabled={!textAnswer.trim() || showCorrect}
-                        className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
+                        onClick={nextQuestion}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                       >
-                        {showCorrect ? 'পরবর্তী প্রশ্ন' : 'উত্তর পরীক্ষা করুন'}
+                        পরবর্তী প্রশ্ন →
                       </button>
-                    </form>
+                    )}
 
                     {/* Answer Feedback */}
                     {showCorrect && (
